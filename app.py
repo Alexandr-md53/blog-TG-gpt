@@ -8,7 +8,7 @@ app = FastAPI()
 
 # Получаем API ключи из переменных окружения
 openai.api_key = os.environ.get("OPENAI_API_KEY")
-newsapi_key = os.environ.get("NEWSAPI_KEY")  # Используем существующую переменную
+newsapi_key = os.environ.get("NEWSAPI_KEY")
 
 if not openai.api_key:
     raise ValueError("Переменная окружения OPENAI_API_KEY не установлена")
@@ -21,8 +21,8 @@ class Topic(BaseModel):
 def get_recent_news(topic):
     url = "https://api.currentsapi.services/v1/latest-news"
     params = {
-        "language": "en",  # Выбираем английский язык
-        "keywords": topic,  # Фильтр по ключевому слову
+        "language": "en",
+        "keywords": topic,
         "apiKey": newsapi_key
     }
     headers = {
@@ -36,8 +36,7 @@ def get_recent_news(topic):
     if not news_data:
         return "Свежих новостей не найдено."
     
-    # Извлекаем заголовки новостей
-    recent_news = [article["title"] for article in news_data[:3]]  # Берем до 3 статей
+    recent_news = [article["title"] for article in news_data[:3]]
     return "\n".join(recent_news)
 
 def generate_post(topic):
@@ -108,11 +107,15 @@ async def root():
 async def heartbeat_api():
     return {"status": "OK"}
 
+@app.head("/generate-post")
+async def head_generate_post_api():
+    return {"message": "This endpoint supports HEAD method."}  # Упрощенный ответ для HEAD метода
+
 if __name__ == "__main__":
     import uvicorn
-    # Получаем порт из переменной окружения PORT, по умолчанию 8000
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port)
+
 
 
 
